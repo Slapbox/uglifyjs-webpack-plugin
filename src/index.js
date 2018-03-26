@@ -12,6 +12,7 @@ import serialize from 'serialize-javascript';
 import schema from './options.json';
 import Uglify from './uglify';
 import versions from './uglify/versions';
+import utils from './utils';
 
 const warningRegex = /\[.+:([0-9]+),([0-9]+)\]/;
 
@@ -124,7 +125,7 @@ class UglifyJsPlugin {
               input = source;
               inputSourceMap = map;
 
-              sourceMap = new SourceMapConsumer(inputSourceMap);
+              sourceMap = utils.isSourceMap(inputSourceMap) ? new SourceMapConsumer(inputSourceMap) : null;
             } else {
               input = asset.source();
               inputSourceMap = null;

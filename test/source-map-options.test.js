@@ -20,6 +20,14 @@ describe('when options.sourceMap', () => {
     'test3.js': {
       source: () => 'function test3(foo) { foo = 1; }',
     },
+    'test4.js': {
+      sourceAndMap: () => {
+        return {
+          source: 'function foo(x) { if (x) { return bar(); not_called1(); } }',
+          map: null,
+        };
+      },
+    },
   };
 
   describe('true', () => {
@@ -63,6 +71,7 @@ describe('when options.sourceMap', () => {
           chunkPluginEnvironment = new PluginEnvironment();
           compilation = chunkPluginEnvironment.getEnvironmentStub();
           compilation.assets = assets;
+          compilation.warnings = [];
           compilation.errors = [];
 
           eventBinding.handler(compilation);
@@ -107,8 +116,10 @@ describe('when options.sourceMap', () => {
           it('only calls callback once', (done) => {
             callback = jest.fn();
             compilationEventBinding.handler([{
-              files: ['test.js', 'test1.js', 'test2.js', 'test3.js'],
+              files: ['test.js', 'test1.js', 'test2.js', 'test3.js', 'test4.js'],
             }], () => {
+              expect(compilation.warnings.length).toBe(0);
+              expect(compilation.errors.length).toBe(0);
               callback();
               expect(callback.mock.calls.length).toBe(1);
               done();
@@ -126,8 +137,8 @@ describe('when options.sourceMap', () => {
         const errors = stats.compilation.errors.map(cleanErrorStack);
         const warnings = stats.compilation.warnings.map(cleanErrorStack);
 
-        expect(errors).toMatchSnapshot('source map: errors');
-        expect(warnings).toMatchSnapshot('source map: warnings');
+        expect(errors).toMatchSnapshot('sourceMap is "true": errors');
+        expect(warnings).toMatchSnapshot('sourceMap is "true": warnings');
 
         for (const file in stats.compilation.assets) {
           if (Object.prototype.hasOwnProperty.call(stats.compilation.assets, file)) {
@@ -135,8 +146,8 @@ describe('when options.sourceMap', () => {
 
             asset.map.sources = [];
 
-            expect(asset.source).toMatchSnapshot(`source: asset ${file}`);
-            expect(asset.map).toMatchSnapshot(`source map: asset ${file}`);
+            expect(asset.source).toMatchSnapshot(`sourceMap is "true" (source): asset ${file}`);
+            expect(asset.map).toMatchSnapshot(`sourceMap is "true" (map): asset ${file}`);
           }
         }
       });
@@ -184,6 +195,7 @@ describe('when options.sourceMap', () => {
           chunkPluginEnvironment = new PluginEnvironment();
           compilation = chunkPluginEnvironment.getEnvironmentStub();
           compilation.assets = assets;
+          compilation.warnings = [];
           compilation.errors = [];
 
           eventBinding.handler(compilation);
@@ -228,8 +240,10 @@ describe('when options.sourceMap', () => {
           it('only calls callback once', (done) => {
             callback = jest.fn();
             compilationEventBinding.handler([{
-              files: ['test.js', 'test1.js', 'test2.js', 'test3.js'],
+              files: ['test.js', 'test1.js', 'test2.js', 'test3.js', 'test4.js'],
             }], () => {
+              expect(compilation.warnings.length).toBe(0);
+              expect(compilation.errors.length).toBe(0);
               callback();
               expect(callback.mock.calls.length).toBe(1);
               done();
@@ -247,8 +261,8 @@ describe('when options.sourceMap', () => {
         const errors = stats.compilation.errors.map(cleanErrorStack);
         const warnings = stats.compilation.warnings.map(cleanErrorStack);
 
-        expect(errors).toMatchSnapshot('source map and parallel: errors');
-        expect(warnings).toMatchSnapshot('source map and parallel: warnings');
+        expect(errors).toMatchSnapshot('sourceMap is "true" and parallel is "true": errors');
+        expect(warnings).toMatchSnapshot('sourceMap is "true" and parallel is "true": warnings');
 
         for (const file in stats.compilation.assets) {
           if (Object.prototype.hasOwnProperty.call(stats.compilation.assets, file)) {
@@ -256,8 +270,8 @@ describe('when options.sourceMap', () => {
 
             asset.map.sources = [];
 
-            expect(asset.source).toMatchSnapshot(`source and parallel: asset ${file}`);
-            expect(asset.map).toMatchSnapshot(`source map and parallel: asset ${file}`);
+            expect(asset.source).toMatchSnapshot(`sourceMap is "true" and parallel is "true" (source): asset ${file}`);
+            expect(asset.map).toMatchSnapshot(`sourceMap is "true" and parallel is "true" (map): asset ${file}`);
           }
         }
       });
